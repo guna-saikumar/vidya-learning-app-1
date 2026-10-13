@@ -37,11 +37,11 @@ export const checkPostgresHealth = async (): Promise<{ ok: boolean; message: str
 
     if (res && res.ok) {
       POSTGRES_CONFIG.isConnected = true;
-      return { ok: true, message: 'Connected to PostgreSQL Backend' };
+      return { ok: true, message: 'Connected to Cloud Sync' };
     }
-    return { ok: false, message: 'PostgreSQL Backend offline · Using persistent local cache' };
+    return { ok: false, message: 'Cloud Sync offline · Using local cache' };
   } catch {
-    return { ok: false, message: 'PostgreSQL Backend unreachable · Offline mode active' };
+    return { ok: false, message: 'Offline mode active · Local storage enabled' };
   }
 };
 

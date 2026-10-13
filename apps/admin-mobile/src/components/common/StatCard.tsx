@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
+import Colors from '../../constants/colors';
+import { HoverCard } from './HoverCard';
 
 interface StatCardProps {
   label: string;
@@ -8,6 +10,7 @@ interface StatCardProps {
   icon: React.ReactNode;
   badge?: string;
   badgeColor?: 'success' | 'warning' | 'primary' | 'muted';
+  isProgress?: boolean;
   onPress?: () => void;
 }
 
@@ -18,55 +21,74 @@ export const StatCard: React.FC<StatCardProps> = ({
   icon,
   badge,
   badgeColor = 'primary',
+  isProgress = false,
   onPress,
 }) => {
-  const getBadgeClass = () => {
+  const getBadgeStyle = () => {
     switch (badgeColor) {
       case 'success':
-        return 'bg-successBg text-success';
+        return { bg: 'bg-successBg', text: 'text-success' };
       case 'warning':
-        return 'bg-[#FEF3C7] text-warning';
+        return { bg: 'bg-accentGoldBg', text: 'text-accentGoldDark' };
       case 'muted':
-        return 'bg-softWarm text-textMuted';
+        return { bg: 'bg-softWarm', text: 'text-textMuted' };
       case 'primary':
       default:
-        return 'bg-palePeach text-primary';
+        return { bg: 'bg-palePeach', text: 'text-primaryDark' };
     }
   };
 
+  const badgeStyle = getBadgeStyle();
+
   return (
-    <TouchableOpacity
-      className="flex-1 min-w-[46%] bg-white rounded-2xl p-4 border border-border shadow-sm justify-between gap-3"
+    <HoverCard
+      className="flex-1 min-h-[84px] bg-white rounded-[20px] py-4 px-4 border border-border flex-row items-center gap-3.5 shadow-sm"
+      lift={-3}
       onPress={onPress}
-      disabled={!onPress}
-      activeOpacity={0.8}
     >
-      <View className="flex-row items-center justify-between">
-        <View className="w-11 h-11 rounded-xl bg-palePeach items-center justify-center border border-primaryLight">
-          {icon}
-        </View>
-        {badge && (
-          <View className={`px-2 py-0.5 rounded-full ${getBadgeClass().split(' ')[0]}`}>
-            <Text className={`font-manrope-bold text-[10px] ${getBadgeClass().split(' ')[1]}`}>
-              {badge}
-            </Text>
-          </View>
-        )}
+      {/* Left side icon matching student-mobile */}
+      <View
+        className={`w-11 h-11 rounded-[14px] items-center justify-center ${
+          isProgress ? 'bg-successBg' : badgeColor === 'warning' ? 'bg-accentGoldBg' : 'bg-palePeach'
+        }`}
+      >
+        {icon}
       </View>
 
-      <View className="gap-0.5">
-        <Text className="font-manrope-extrabold text-2xl text-textPrimary tracking-tight">
-          {value}
-        </Text>
-        <Text className="font-manrope-semibold text-[13px] text-textLead">
+      {/* Right side numbers and headings */}
+      <View className="flex-1 justify-center gap-0.5 min-w-0">
+        <View className="flex-row items-center gap-1.5 flex-wrap">
+          <Text
+            className="font-manrope-extrabold text-[22px] text-textPrimary tracking-tight leading-[26px]"
+            numberOfLines={1}
+          >
+            {value}
+          </Text>
+          {badge ? (
+            <View className={`px-1.5 py-0.5 rounded-md ${badgeStyle.bg}`}>
+              <Text className={`font-manrope-bold text-[10px] ${badgeStyle.text}`}>
+                {badge}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+
+        <Text
+          className="font-manrope-semibold text-xs text-textSecondary tracking-tight"
+          numberOfLines={1}
+        >
           {label}
         </Text>
+
         {subtitle && (
-          <Text className="font-manrope-medium text-[11px] text-textSecondary mt-0.5" numberOfLines={1}>
+          <Text
+            className="font-manrope-medium text-[10px] text-textMuted leading-3"
+            numberOfLines={1}
+          >
             {subtitle}
           </Text>
         )}
       </View>
-    </TouchableOpacity>
+    </HoverCard>
   );
 };

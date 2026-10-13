@@ -16,6 +16,7 @@ import {
   Trash2,
 } from 'lucide-react-native';
 import Colors from '../../constants/colors';
+import { HoverCard } from '../common/HoverCard';
 
 interface SubjectCardProps {
   subject: Subject;
@@ -70,24 +71,25 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
   const cat = getCategoryClass(subject.category);
 
   return (
-    <View
-      className={`bg-white rounded-2xl p-4 border shadow-sm gap-3 ${
+    <HoverCard
+      className={`bg-white rounded-[20px] p-5 border shadow-sm gap-3.5 mb-3.5 ${
         subject.isArchived ? 'border-border opacity-70' : 'border-border'
       }`}
+      lift={-4}
     >
       {/* Top Header Row */}
       <TouchableOpacity
-        className="flex-row items-start justify-between gap-3"
+        className="flex-row items-start justify-between gap-3.5"
         onPress={onPress}
         activeOpacity={0.8}
       >
-        <View className="flex-row items-center gap-3 flex-1 min-w-0">
-          <View className="w-12 h-12 rounded-xl bg-palePeach items-center justify-center border border-primaryLight shadow-sm">
+        <View className="flex-row items-center gap-3.5 flex-1 min-w-0">
+          <View className="w-12 h-12 rounded-[14px] bg-palePeach items-center justify-center border border-primaryLight shadow-sm">
             {getSubjectIcon(subject.iconName)}
           </View>
           <View className="flex-1 min-w-0">
             <View className="flex-row items-center gap-2">
-              <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight" numberOfLines={1}>
+              <Text className="font-manrope-extrabold text-[17px] text-textPrimary tracking-tight" numberOfLines={1}>
                 {subject.name}
               </Text>
               {subject.isArchived && (
@@ -97,18 +99,18 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
               )}
             </View>
             {subject.description ? (
-              <Text className="font-manrope-medium text-xs text-textSecondary mt-0.5" numberOfLines={1}>
+              <Text className="font-manrope-medium text-[13px] text-textSecondary leading-[18px] mt-0.5" numberOfLines={2}>
                 {subject.description}
               </Text>
             ) : null}
           </View>
         </View>
 
-        <ChevronRight size={18} color={Colors.textMuted} className="mt-2" />
+        <ChevronRight size={20} color={Colors.textMuted} className="mt-1" />
       </TouchableOpacity>
 
       {/* Meta & Stats Row */}
-      <View className="flex-row items-center justify-between pt-2.5 border-t border-border">
+      <View className="flex-row flex-wrap items-center justify-between gap-y-2 pt-3 border-t border-border">
         <View className="flex-row items-center gap-2">
           <View className={`px-2.5 py-0.5 rounded-full ${cat.bg}`}>
             <Text className={`font-manrope-bold text-[11px] ${cat.text}`}>{cat.label}</Text>
@@ -121,7 +123,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
         </View>
 
         {/* Action Buttons */}
-        <View className="flex-row items-center gap-1">
+        <View className="flex-row items-center gap-1.5">
           <TouchableOpacity
             className="w-8 h-8 rounded-lg bg-softWarm items-center justify-center border border-border"
             onPress={onEdit}
@@ -150,6 +152,6 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </HoverCard>
   );
 };

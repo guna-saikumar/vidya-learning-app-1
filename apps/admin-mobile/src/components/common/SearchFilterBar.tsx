@@ -29,7 +29,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   return (
     <View className="gap-2.5">
       {/* Search Input Box */}
-      <View className="flex-row items-center bg-white border border-border rounded-xl px-3.5 h-12 shadow-sm">
+      <View className="flex-row items-center bg-white border border-border rounded-[16px] px-3.5 h-12 shadow-sm">
         <Search size={18} color={Colors.textSecondary} />
         <TextInput
           className="flex-1 min-w-0 ml-2.5 font-manrope-medium text-sm text-textPrimary"

@@ -8,6 +8,7 @@ import { SearchFilterBar } from '../components/common/SearchFilterBar';
 import { MaterialCard } from '../components/materials/MaterialCard';
 import { ModalConfirm } from '../components/common/ModalConfirm';
 import { EmptyState } from '../components/common/EmptyState';
+import { PageIntro } from '../components/common/PageIntro';
 import {
   getAllMaterials,
   filterMaterials,
@@ -98,37 +99,45 @@ export const MaterialsLibraryScreen: React.FC = () => {
     { key: 'all', label: 'All Types' },
     { key: 'pdf', label: 'PDFs' },
     { key: 'video', label: 'Videos' },
-    { key: 'presentation', label: 'Slides' },
     { key: 'notes', label: 'Notes' },
-    { key: 'image', label: 'Images' },
-    { key: 'quiz', label: 'Quizzes' },
+    { key: 'presentation', label: 'Presentations' },
+    { key: 'image', label: 'Diagrams' },
   ];
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderBar
-        title="Lecture Materials"
-        subtitle={`${materials.length} Materials in Library`}
-        rightAction={
-          <TouchableOpacity
-            className="flex-row items-center gap-1.5 bg-primary px-3 py-1.5 rounded-full shadow-sm"
-            onPress={() => navigation.navigate('AddEditMaterial')}
-            activeOpacity={0.8}
-          >
-            <Plus size={14} color={Colors.white} />
-            <Text className="font-manrope-bold text-xs text-white">Upload Material</Text>
-          </TouchableOpacity>
-        }
-      />
+      <HeaderBar onProfilePress={() => navigation.navigate('Profile')} />
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 40 }}
+        contentContainerStyle={{
+          paddingHorizontal: 22,
+          paddingTop: 18,
+          paddingBottom: 48,
+          gap: 18,
+        }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
         }
       >
+        {/* Page Heading & Subheading scrolling naturally with the content */}
+        <PageIntro
+          eyebrow="LECTURE RESOURCES"
+          badge={`${materials.length} Total`}
+          title="Learning Materials"
+          description="Curate and publish PDFs, lecture notes, videos, and presentations."
+          rightAction={
+            <TouchableOpacity
+              className="flex-row items-center gap-1.5 bg-primary px-3.5 py-2 rounded-full shadow-sm"
+              onPress={() => navigation.navigate('AddEditMaterial')}
+              activeOpacity={0.8}
+            >
+              <Plus size={15} color={Colors.white} />
+              <Text className="font-manrope-bold text-xs text-white">Upload</Text>
+            </TouchableOpacity>
+          }
+        />
         {/* Search Bar */}
         <SearchFilterBar
           searchQuery={searchQuery}
@@ -141,14 +150,16 @@ export const MaterialsLibraryScreen: React.FC = () => {
 
         {/* Secondary Filter: Class Selector */}
         <View className="gap-2">
-          <Text className="font-manrope-bold text-xs text-textLead">Filter by Class</Text>
+          <Text className="font-manrope-extrabold text-xs text-textLead uppercase tracking-wider">
+            Filter by Class
+          </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8 }}
+            contentContainerStyle={{ gap: 8, paddingVertical: 2 }}
           >
             <TouchableOpacity
-              className={`px-3 py-1.5 rounded-full border ${
+              className={`px-3.5 py-1.5 rounded-full border ${
                 selectedClassId === 'all'
                   ? 'bg-primary border-primary'
                   : 'bg-white border-border'
@@ -170,7 +181,7 @@ export const MaterialsLibraryScreen: React.FC = () => {
               return (
                 <TouchableOpacity
                   key={cls.id}
-                  className={`px-3 py-1.5 rounded-full border ${
+                  className={`px-3.5 py-1.5 rounded-full border ${
                     isSelected
                       ? 'bg-primary border-primary'
                       : 'bg-white border-border'
@@ -191,33 +202,35 @@ export const MaterialsLibraryScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* Third Filter: Material Type */}
+        {/* Third Filter: Material Type Horizontal Scroll */}
         <View className="gap-2">
-          <Text className="font-manrope-bold text-xs text-textLead">Material Format</Text>
+          <Text className="font-manrope-extrabold text-xs text-textLead uppercase tracking-wider">
+            Resource Type
+          </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8 }}
+            contentContainerStyle={{ gap: 8, paddingVertical: 2 }}
           >
-            {typeChips.map((chip) => {
-              const isSelected = selectedType === chip.key;
+            {typeChips.map((typeChip) => {
+              const isSelected = selectedType === typeChip.key;
               return (
                 <TouchableOpacity
-                  key={chip.key}
-                  className={`px-3 py-1 rounded-xl border ${
+                  key={typeChip.key}
+                  className={`px-3.5 py-1.5 rounded-full border ${
                     isSelected
                       ? 'bg-palePeach border-primary'
-                      : 'bg-softWarm border-border'
+                      : 'bg-white border-border'
                   }`}
-                  onPress={() => setSelectedType(chip.key)}
+                  onPress={() => setSelectedType(typeChip.key)}
                   activeOpacity={0.8}
                 >
                   <Text
-                    className={`font-manrope-bold text-[11px] ${
-                      isSelected ? 'text-primaryDark' : 'text-textSecondary'
+                    className={`font-manrope-bold text-xs ${
+                      isSelected ? 'text-primary' : 'text-textSecondary'
                     }`}
                   >
-                    {chip.label}
+                    {typeChip.label}
                   </Text>
                 </TouchableOpacity>
               );
@@ -226,30 +239,37 @@ export const MaterialsLibraryScreen: React.FC = () => {
         </View>
 
         {/* Materials List */}
-        <View className="gap-2.5 mt-1">
-          <View className="flex-row items-center justify-between">
-            <Text className="font-manrope-extrabold text-sm text-textPrimary">
-              Available Materials ({materials.length})
+        <View className="gap-1">
+          <View className="flex-row items-center justify-between pb-1">
+            <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight">
+              Materials ({materials.length})
+            </Text>
+            <Text className="font-manrope-medium text-xs text-textMuted">
+              {materials.filter((m) => m.status === 'published').length} Live in student app
             </Text>
           </View>
 
           {materials.length === 0 ? (
             <EmptyState
-              icon={<Layers size={28} color={Colors.primary} />}
-              title="No Materials Match"
-              message="No lecture materials found matching the current filters. Tap 'Upload Material' to create one."
+              title="No materials found"
+              message="No lecture materials match your filter criteria. Try choosing a different class, type, or upload a new resource."
+              icon={<Layers size={36} color={Colors.primary} />}
               actionLabel="Upload Material"
               onActionPress={() => navigation.navigate('AddEditMaterial')}
             />
           ) : (
-            materials.map((mat) => (
+            materials.map((item) => (
               <MaterialCard
-                key={mat.id}
-                material={mat}
-                onPress={() => navigation.navigate('PreviewPublish', { materialId: mat.id })}
-                onEdit={() => navigation.navigate('AddEditMaterial', { materialId: mat.id })}
-                onToggleStatus={() => handleToggleStatus(mat)}
-                onDelete={() => setMaterialToDelete(mat)}
+                key={item.id}
+                material={item}
+                onPress={() =>
+                  navigation.navigate('PreviewPublish', { materialId: item.id })
+                }
+                onEdit={() =>
+                  navigation.navigate('AddEditMaterial', { materialId: item.id })
+                }
+                onToggleStatus={() => handleToggleStatus(item)}
+                onDelete={() => setMaterialToDelete(item)}
               />
             ))
           )}
@@ -259,8 +279,8 @@ export const MaterialsLibraryScreen: React.FC = () => {
       {/* Delete Confirmation Modal */}
       <ModalConfirm
         visible={Boolean(materialToDelete)}
-        title="Delete Lecture Material"
-        message={`Are you sure you want to delete '${materialToDelete?.title}'? Students will no longer have access to this resource.`}
+        title="Delete Learning Material?"
+        message={`Are you sure you want to delete "${materialToDelete?.title}"? This will remove the file for both students and admins.`}
         confirmLabel="Delete"
         variant="danger"
         onConfirm={handleDelete}
@@ -269,3 +289,5 @@ export const MaterialsLibraryScreen: React.FC = () => {
     </View>
   );
 };
+
+export default MaterialsLibraryScreen;

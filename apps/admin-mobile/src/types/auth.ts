@@ -4,7 +4,8 @@ export interface AdminUser {
   id: string;
   email: string;
   fullName: string;
-  role: UserRole;
+  phone?: string;
+  role: string;
   avatarUrl?: string;
   department?: string;
   lastLogin?: string;
@@ -15,3 +16,4 @@ export interface AdminSession {
   token: string;
   expiresAt: number;
 }
+

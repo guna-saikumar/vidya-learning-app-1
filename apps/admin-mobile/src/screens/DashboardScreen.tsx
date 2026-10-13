@@ -9,19 +9,23 @@ import {
   PlusCircle,
   UploadCloud,
   CheckCircle2,
-  Clock,
-  ArrowRight,
+  ChevronRight,
   TrendingUp,
+  School,
+  Sparkles,
 } from 'lucide-react-native';
 import Colors from '../constants/colors';
 import { HeaderBar } from '../components/common/HeaderBar';
 import { StatCard } from '../components/common/StatCard';
+import { HoverCard } from '../components/common/HoverCard';
 import { getDashboardStats, DashboardStats } from '../services/statsService';
 import { getClasses } from '../services/curriculumService';
 import { SchoolClass } from '../types/curriculum';
+import { useAdminAuth } from '../hooks/useAdminAuth';
 
 export const DashboardScreen: React.FC = () => {
   const navigation = useNavigation<any>();
+  const { user } = useAdminAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -48,162 +52,176 @@ export const DashboardScreen: React.FC = () => {
     setRefreshing(false);
   };
 
-  const publishedPercent = stats && stats.totalMaterials > 0
-    ? Math.round((stats.publishedMaterials / stats.totalMaterials) * 100)
-    : 0;
+  const publishedPercent =
+    stats && stats.totalMaterials > 0
+      ? Math.round((stats.publishedMaterials / stats.totalMaterials) * 100)
+      : 0;
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderBar
-        title="Admin Console"
-        subtitle="SCERT AP Board (2026–27)"
-      />
+      <HeaderBar onProfilePress={() => navigation.navigate('Profile')} />
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 20, gap: 24, paddingBottom: 40 }}
+        contentContainerStyle={{
+          paddingHorizontal: 22,
+          paddingTop: 20,
+          paddingBottom: 50,
+          gap: 24,
+        }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
         }
       >
-        {/* Welcome Banner Card */}
-        <View className="bg-palePeach rounded-3xl p-5 border border-primaryLight shadow-sm gap-2">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center gap-1.5 bg-white/70 px-2.5 py-1 rounded-full border border-primaryLight">
-              <TrendingUp size={12} color={Colors.primary} />
-              <Text className="font-manrope-bold text-[11px] text-primary">
+        {/* Welcome Hero Card matching student HeroCard */}
+        <View className="bg-primaryDark rounded-3xl p-6 relative overflow-hidden justify-center min-h-[155px]">
+          <View className="w-4/5 gap-2.5 z-10">
+            <View className="self-start flex-row items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10">
+              <Sparkles size={13} color={Colors.white} />
+              <Text className="text-[11px] font-manrope-bold text-white tracking-wide">
                 ACADEMIC YEAR 2026–2027
               </Text>
             </View>
-            <Text className="font-manrope-bold text-xs text-primaryDark">Live Curriculum</Text>
+            <Text className="text-xl font-manrope-extrabold text-white leading-[26px] tracking-tight">
+              Welcome, {user?.fullName || 'Admin'}
+            </Text>
+            <Text className="text-[13px] font-manrope-medium text-primaryLight leading-[19px]">
+              {user?.department || 'Academic Director · AP SCERT Division'} · Classes 6–10
+            </Text>
           </View>
-          <Text className="font-manrope-extrabold text-xl text-textPrimary tracking-tight">
-            Curriculum & Content Management
-          </Text>
-          <Text className="font-manrope-medium text-xs text-textSecondary leading-4">
-            Manage Andhra Pradesh State Board syllabus for Classes 6 through 10. Published content syncs directly to the student mobile app.
-          </Text>
+
+          {/* Watermark Icon */}
+          <View className="absolute -right-2.5 -bottom-2.5 w-24 h-24 rounded-full bg-white/5 items-center justify-center">
+            <School size={40} color="rgba(255, 255, 255, 0.2)" />
+          </View>
         </View>
 
         {/* Quick Actions Panel */}
         <View className="gap-2.5">
-          <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight">
+          <Text className="font-manrope-extrabold text-lg text-textPrimary tracking-tight">
             Quick Actions
           </Text>
           <View className="flex-row items-center gap-3">
-            <TouchableOpacity
-              className="flex-1 bg-white rounded-2xl p-3.5 border border-border shadow-sm items-center justify-center gap-1.5"
+            <HoverCard
+              className="flex-1 bg-white rounded-[20px] p-4 border border-border shadow-sm items-center justify-center gap-2"
               onPress={() => navigation.navigate('Curriculum')}
-              activeOpacity={0.8}
+              lift={-3}
             >
-              <View className="w-10 h-10 rounded-xl bg-palePeach items-center justify-center border border-primaryLight">
-                <PlusCircle size={20} color={Colors.primary} />
+              <View className="w-11 h-11 rounded-[14px] bg-palePeach items-center justify-center border border-primaryLight">
+                <PlusCircle size={22} color={Colors.primary} />
               </View>
               <Text className="font-manrope-bold text-xs text-textPrimary text-center">
                 Add Subject
               </Text>
-            </TouchableOpacity>
+            </HoverCard>
 
-            <TouchableOpacity
-              className="flex-1 bg-white rounded-2xl p-3.5 border border-border shadow-sm items-center justify-center gap-1.5"
+            <HoverCard
+              className="flex-1 bg-white rounded-[20px] p-4 border border-border shadow-sm items-center justify-center gap-2"
               onPress={() => navigation.navigate('AddEditMaterial')}
-              activeOpacity={0.8}
+              lift={-3}
             >
-              <View className="w-10 h-10 rounded-xl bg-successBg items-center justify-center border border-success/30">
-                <UploadCloud size={20} color={Colors.success} />
+              <View className="w-11 h-11 rounded-[14px] bg-successBg items-center justify-center border border-success/30">
+                <UploadCloud size={22} color={Colors.success} />
               </View>
               <Text className="font-manrope-bold text-xs text-textPrimary text-center">
                 Upload Material
               </Text>
-            </TouchableOpacity>
+            </HoverCard>
 
-            <TouchableOpacity
-              className="flex-1 bg-white rounded-2xl p-3.5 border border-border shadow-sm items-center justify-center gap-1.5"
+            <HoverCard
+              className="flex-1 bg-white rounded-[20px] p-4 border border-border shadow-sm items-center justify-center gap-2"
               onPress={() => navigation.navigate('ContentEditor', {})}
-              activeOpacity={0.8}
+              lift={-3}
             >
-              <View className="w-10 h-10 rounded-xl bg-accentGoldBg items-center justify-center border border-accentGold/30">
-                <FileText size={20} color={Colors.accentGoldDark} />
+              <View className="w-11 h-11 rounded-[14px] bg-accentGoldBg items-center justify-center border border-accentGold/30">
+                <FileText size={22} color={Colors.accentGoldDark} />
               </View>
               <Text className="font-manrope-bold text-xs text-textPrimary text-center">
                 Note Editor
               </Text>
-            </TouchableOpacity>
+            </HoverCard>
           </View>
         </View>
 
-        {/* Real-time Statistics Cards */}
-        <View className="gap-2.5">
+        {/* Real-time Statistics Cards Grid (Paired 2x2 layout matching student-mobile) */}
+        <View className="gap-3">
           <View className="flex-row items-center justify-between">
-            <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight">
-              Curriculum Statistics
+            <Text className="font-manrope-extrabold text-lg text-textPrimary tracking-tight">
+              Curriculum Overview
             </Text>
-            <Text className="font-manrope-medium text-xs text-textMuted">Database Sync</Text>
+            <Text className="font-manrope-semibold text-xs text-textMuted">Classes 6–10 • SCERT</Text>
           </View>
 
-          <View className="flex-row flex-wrap gap-3">
-            <StatCard
-              label="Classes"
-              value={stats?.totalClasses || 5}
-              subtitle="Grades 6–10 Active"
-              icon={<GraduationCap size={22} color={Colors.primary} />}
-              badge="SCERT"
-              badgeColor="primary"
-              onPress={() => navigation.navigate('Curriculum')}
-            />
+          <View className="gap-3">
+            <View className="flex-row gap-3">
+              <StatCard
+                label="Classes"
+                value={stats?.totalClasses || 5}
+                icon={<GraduationCap size={22} color={Colors.primary} />}
+                badge="SCERT"
+                badgeColor="primary"
+                onPress={() => navigation.navigate('Curriculum')}
+              />
+              <StatCard
+                label="Subjects"
+                value={stats?.totalSubjects || 33}
+                icon={<BookOpen size={22} color={Colors.primary} />}
+                badge="Grades 6–10"
+                badgeColor="primary"
+                onPress={() => navigation.navigate('Curriculum')}
+              />
+            </View>
 
-            <StatCard
-              label="Subjects"
-              value={stats?.totalSubjects || 33}
-              subtitle="STEM & Languages"
-              icon={<BookOpen size={22} color={Colors.primary} />}
-              badge="Configured"
-              badgeColor="primary"
-              onPress={() => navigation.navigate('Curriculum')}
-            />
-
-            <StatCard
-              label="Chapters"
-              value={stats?.totalChapters || 58}
-              subtitle="With Objectives"
-              icon={<Layers size={22} color={Colors.primary} />}
-              badge="Structured"
-              badgeColor="primary"
-            />
-
-            <StatCard
-              label="Lecture Materials"
-              value={stats?.totalMaterials || 6}
-              subtitle={`${stats?.publishedMaterials || 4} Published`}
-              icon={<FileText size={22} color={Colors.primary} />}
-              badge={`${publishedPercent}% Live`}
-              badgeColor="success"
-              onPress={() => navigation.navigate('Materials')}
-            />
+            <View className="flex-row gap-3">
+              <StatCard
+                label="Chapters"
+                value={stats?.totalChapters || 58}
+                icon={<Layers size={22} color={Colors.primary} />}
+                badge="Structured"
+                badgeColor="primary"
+              />
+              <StatCard
+                label="Published"
+                value={`${publishedPercent}%`}
+                subtitle={`${stats?.publishedMaterials || 4} of ${stats?.totalMaterials || 6} live`}
+                icon={<FileText size={22} color={Colors.success} />}
+                badge={`${stats?.publishedMaterials || 0} Live`}
+                badgeColor="success"
+                isProgress={true}
+                onPress={() => navigation.navigate('Materials')}
+              />
+            </View>
           </View>
         </View>
 
-        {/* Publication Status Card */}
-        <View className="bg-white rounded-2xl p-4 border border-border shadow-sm gap-3">
+        {/* Publication Progress Tracker Card */}
+        <HoverCard className="bg-white rounded-[20px] p-5 border border-border gap-3.5 shadow-sm" lift={-3}>
           <View className="flex-row items-center justify-between">
-            <Text className="font-manrope-extrabold text-sm text-textPrimary">
-              Publication Overview
-            </Text>
-            <View className="flex-row items-center gap-1.5">
+            <View>
+              <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight">
+                Publication Pipeline
+              </Text>
+              <Text className="font-manrope-medium text-xs text-textSecondary mt-0.5">
+                {stats?.publishedMaterials || 0} of {stats?.totalMaterials || 0} materials currently active
+              </Text>
+            </View>
+            <View className="flex-row items-center gap-1 bg-successBg px-2.5 py-1 rounded-full">
               <CheckCircle2 size={13} color={Colors.success} />
               <Text className="font-manrope-bold text-xs text-success">
-                {stats?.publishedMaterials || 0} Published
+                {publishedPercent}% Ready
               </Text>
             </View>
           </View>
 
-          {/* Progress bar */}
-          <View className="w-full h-2.5 bg-softWarm rounded-full overflow-hidden flex-row">
-            <View
-              className="h-full bg-success rounded-full"
-              style={{ width: `${publishedPercent}%` }}
-            />
+          {/* Progress track */}
+          <View className="gap-1.5">
+            <View className="h-1.5 rounded-full bg-[#F3EDE9] overflow-hidden">
+              <View
+                className="h-full rounded-full bg-success"
+                style={{ width: `${Math.max(2, Math.min(100, publishedPercent))}%` }}
+              />
+            </View>
           </View>
 
           <View className="flex-row items-center justify-between pt-1">
@@ -215,7 +233,7 @@ export const DashboardScreen: React.FC = () => {
             </View>
 
             <View className="flex-row items-center gap-1.5">
-              <View className="w-2.5 h-2.5 rounded-full bg-warning" />
+              <View className="w-2.5 h-2.5 rounded-full bg-accentGoldDark" />
               <Text className="font-manrope-medium text-xs text-textSecondary">
                 Drafts ({stats?.draftsCount || 0})
               </Text>
@@ -228,85 +246,50 @@ export const DashboardScreen: React.FC = () => {
               </Text>
             </View>
           </View>
-        </View>
+        </HoverCard>
 
         {/* Classes Overview Breakdown */}
-        <View className="gap-2.5">
+        <View className="gap-3">
           <View className="flex-row items-center justify-between">
-            <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight">
-              Class Structure
+            <Text className="font-manrope-extrabold text-lg text-textPrimary tracking-tight">
+              Class Hierarchy
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Curriculum')}>
-              <Text className="font-manrope-bold text-xs text-primary">View All</Text>
+              <Text className="font-manrope-bold text-[13px] text-primary">View All Classes</Text>
             </TouchableOpacity>
           </View>
 
-          <View className="gap-2">
-            {classes.slice(0, 3).map((c) => (
-              <TouchableOpacity
+          <View className="gap-3">
+            {classes.map((c) => (
+              <HoverCard
                 key={c.id}
-                className="bg-white rounded-2xl p-4 border border-border shadow-sm flex-row items-center justify-between"
+                className="bg-white rounded-[20px] p-5 border border-border shadow-sm flex-row items-center justify-between"
                 onPress={() => navigation.navigate('Curriculum')}
-                activeOpacity={0.8}
+                lift={-3}
               >
-                <View className="flex-row items-center gap-3">
-                  <View className="w-10 h-10 rounded-xl bg-palePeach items-center justify-center border border-primaryLight">
-                    <Text className="font-manrope-extrabold text-sm text-primary">
-                      {c.grade}
-                    </Text>
-                  </View>
-                  <View>
-                    <Text className="font-manrope-extrabold text-sm text-textPrimary">
-                      {c.title}
-                    </Text>
-                    <Text className="font-manrope-medium text-xs text-textSecondary">
-                      {c.subjects.length} Subjects · {c.badge}
-                    </Text>
-                  </View>
-                </View>
-
-                <ArrowRight size={16} color={Colors.textMuted} />
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Recent Admin Activity Feed */}
-        <View className="gap-2.5">
-          <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight">
-            Recent Admin Activity
-          </Text>
-
-          <View className="bg-white rounded-2xl p-4 border border-border shadow-sm gap-3">
-            {(stats?.recentActivity || []).map((act, index) => (
-              <View
-                key={act.id}
-                className={`flex-row items-start justify-between gap-3 ${
-                  index > 0 ? 'pt-3 border-t border-border' : ''
-                }`}
-              >
-                <View className="flex-row items-start gap-2.5 flex-1 min-w-0">
-                  <View className="w-7 h-7 rounded-lg bg-softWarm items-center justify-center mt-0.5">
-                    {act.action === 'published' ? (
-                      <CheckCircle2 size={14} color={Colors.success} />
-                    ) : (
-                      <Clock size={14} color={Colors.warning} />
-                    )}
+                <View className="flex-row items-center gap-3.5 flex-1 min-w-0">
+                  <View className="w-11 h-11 rounded-[14px] bg-palePeach items-center justify-center">
+                    <GraduationCap size={22} color={Colors.primary} />
                   </View>
                   <View className="flex-1 min-w-0">
-                    <Text className="font-manrope-bold text-xs text-textPrimary" numberOfLines={1}>
-                      {act.title}
+                    <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight">
+                      {c.title}
                     </Text>
-                    <Text className="font-manrope-medium text-[11px] text-textMuted mt-0.5">
-                      {act.category}
+                    <Text className="font-manrope-medium text-xs text-textSecondary mt-0.5">
+                      {c.subtitle} · {c.subjects.length} Subjects
                     </Text>
                   </View>
                 </View>
 
-                <Text className="font-manrope-medium text-[10px] text-textMuted">
-                  {act.timestamp}
-                </Text>
-              </View>
+                <View className="flex-row items-center gap-2">
+                  <View className="bg-softWarm px-2.5 py-1 rounded-full">
+                    <Text className="font-manrope-bold text-xs text-primary">
+                      {c.subjects.reduce((acc, s) => acc + s.chapters.length, 0)} Chapters
+                    </Text>
+                  </View>
+                  <ChevronRight size={18} color={Colors.textMuted} />
+                </View>
+              </HoverCard>
             ))}
           </View>
         </View>
@@ -314,3 +297,5 @@ export const DashboardScreen: React.FC = () => {
     </View>
   );
 };
+
+export default DashboardScreen;

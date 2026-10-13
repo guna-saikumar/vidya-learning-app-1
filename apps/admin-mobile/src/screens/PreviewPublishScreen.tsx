@@ -13,6 +13,7 @@ import {
 } from 'lucide-react-native';
 import Colors from '../constants/colors';
 import { HeaderBar } from '../components/common/HeaderBar';
+import { BottomNav } from '../components/common/BottomNav';
 import { TypeBadge } from '../components/common/TypeBadge';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { getMaterialById, updateMaterialStatus } from '../services/materialsService';
@@ -66,16 +67,17 @@ export const PreviewPublishScreen: React.FC = () => {
         subtitle="Verify before publishing"
         showBack
         onBackPress={() => navigation.goBack()}
+        onProfilePress={() => navigation.navigate('Profile')}
       />
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 18, paddingBottom: 48, gap: 18 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Status Callout Banner */}
         <View
-          className={`p-4 rounded-2xl border flex-row items-center justify-between ${
+          className={`p-4 rounded-[20px] border flex-row items-center justify-between ${
             material.status === 'published'
               ? 'bg-[#E7F3ED] border-success/30'
               : material.status === 'draft'
@@ -90,8 +92,8 @@ export const PreviewPublishScreen: React.FC = () => {
               <Clock size={18} color={Colors.warning} />
             )}
             <View>
-              <Text className="font-manrope-extrabold text-xs text-textPrimary capitalize">
-                Status: {material.status}
+              <Text className="font-manrope-extrabold text-xs text-textPrimary">
+                Publication Status
               </Text>
               <Text className="font-manrope-medium text-[11px] text-textSecondary">
                 {material.status === 'published'
@@ -104,7 +106,7 @@ export const PreviewPublishScreen: React.FC = () => {
         </View>
 
         {/* Student View Mock Card */}
-        <View className="bg-white rounded-3xl p-5 border border-border shadow-md gap-4">
+        <View className="bg-white rounded-[20px] p-5 border border-border shadow-sm gap-4">
           <View className="flex-row items-center justify-between">
             <TypeBadge type={material.materialType} />
             <Text className="font-manrope-bold text-xs text-primaryDark">
@@ -201,7 +203,7 @@ export const PreviewPublishScreen: React.FC = () => {
                     {material.fileName}
                   </Text>
                   <Text className="font-manrope-medium text-[10px] text-textMuted">
-                    Stored in PostgreSQL Media Repository
+                    Uploaded Resource File
                   </Text>
                 </View>
               </View>
@@ -218,38 +220,47 @@ export const PreviewPublishScreen: React.FC = () => {
             </Text>
           </View>
         </View>
+
+        {/* Publishing Actions Card placed directly inside the page */}
+        <View className="bg-white rounded-[20px] p-5 border border-border shadow-sm gap-3.5 mb-2">
+          <Text className="font-manrope-extrabold text-[15px] text-textPrimary tracking-tight">
+            Publishing Actions
+          </Text>
+          <View className="flex-row items-center gap-3">
+            {material.status === 'published' ? (
+              <TouchableOpacity
+                className="flex-1 py-3.5 rounded-xl border border-warning bg-[#FEF3C7] items-center justify-center flex-row gap-2"
+                onPress={() => handleSetStatus('draft')}
+                activeOpacity={0.8}
+              >
+                <Clock size={16} color={Colors.warning} />
+                <Text className="font-manrope-bold text-sm text-warning">Unpublish to Draft</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                className="flex-1 py-3.5 rounded-xl bg-primary items-center justify-center flex-row gap-2 shadow-sm"
+                onPress={() => handleSetStatus('published')}
+                activeOpacity={0.8}
+              >
+                <CheckCircle2 size={16} color={Colors.white} />
+                <Text className="font-manrope-bold text-sm text-white">Publish to Students</Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              className="px-4 py-3.5 rounded-xl border border-border bg-softWarm items-center justify-center flex-row gap-1.5"
+              onPress={() => handleSetStatus('archived')}
+              activeOpacity={0.7}
+            >
+              <Archive size={16} color={Colors.textMuted} />
+              <Text className="font-manrope-bold text-xs text-textSecondary">Archive</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
 
-      {/* Floating Bottom Publishing Action Bar */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-border p-4 flex-row items-center gap-3 shadow-lg">
-        {material.status === 'published' ? (
-          <TouchableOpacity
-            className="flex-1 py-3.5 rounded-xl border border-warning bg-[#FEF3C7] items-center justify-center flex-row gap-2"
-            onPress={() => handleSetStatus('draft')}
-            activeOpacity={0.8}
-          >
-            <Clock size={16} color={Colors.warning} />
-            <Text className="font-manrope-bold text-sm text-warning">Unpublish to Draft</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            className="flex-1 py-3.5 rounded-xl bg-primary items-center justify-center flex-row gap-2 shadow-sm"
-            onPress={() => handleSetStatus('published')}
-            activeOpacity={0.8}
-          >
-            <CheckCircle2 size={16} color={Colors.white} />
-            <Text className="font-manrope-bold text-sm text-white">Publish to Students</Text>
-          </TouchableOpacity>
-        )}
-
-        <TouchableOpacity
-          className="px-4 py-3.5 rounded-xl border border-border bg-white items-center justify-center"
-          onPress={() => handleSetStatus('archived')}
-          activeOpacity={0.7}
-        >
-          <Archive size={16} color={Colors.textMuted} />
-        </TouchableOpacity>
-      </View>
+      {/* Bottom Navbar */}
+      <BottomNav activeTab="Materials" navigation={navigation} />
     </View>
   );
 };

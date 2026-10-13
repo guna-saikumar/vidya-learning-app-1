@@ -10,6 +10,8 @@ import { SubjectCard } from '../components/curriculum/SubjectCard';
 import { AddEditSubjectModal } from '../components/curriculum/AddEditSubjectModal';
 import { ModalConfirm } from '../components/common/ModalConfirm';
 import { EmptyState } from '../components/common/EmptyState';
+import { HoverCard } from '../components/common/HoverCard';
+import { PageIntro } from '../components/common/PageIntro';
 import {
   getClasses,
   addSubjectToClass,
@@ -110,83 +112,95 @@ export const ClassesScreen: React.FC = () => {
 
   return (
     <View className="flex-1 bg-white">
-      <HeaderBar
-        title="Curriculum"
-        subtitle="Manage Classes & Subjects"
-        rightAction={
-          <TouchableOpacity
-            className="flex-row items-center gap-1.5 bg-primary px-3 py-1.5 rounded-full shadow-sm"
-            onPress={() => {
-              setSubjectToEdit(null);
-              setIsAddEditModalVisible(true);
-            }}
-            activeOpacity={0.8}
-          >
-            <Plus size={14} color={Colors.white} />
-            <Text className="font-manrope-bold text-xs text-white">Add Subject</Text>
-          </TouchableOpacity>
-        }
-      />
-
-      {/* Class Selector Tabs */}
-      <View className="py-2.5 border-b border-border bg-white">
-        <ClassSelector
-          classes={classes}
-          selectedClassId={selectedClassId}
-          onSelectClass={setSelectedClassId}
-        />
-      </View>
+      <HeaderBar onProfilePress={() => navigation.navigate('Profile')} />
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 40 }}
+        contentContainerStyle={{
+          paddingHorizontal: 22,
+          paddingTop: 18,
+          paddingBottom: 48,
+          gap: 18,
+        }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
         }
       >
+        {/* Page Heading & Subheading scrolling naturally with the content */}
+        <PageIntro
+          eyebrow="SCERT AP CURRICULUM"
+          badge={`${classes.length} Classes`}
+          title="Curriculum & Syllabi"
+          description="Manage official Andhra Pradesh State Board curriculum and subjects."
+          rightAction={
+            <TouchableOpacity
+              className="flex-row items-center gap-1.5 bg-primary px-3.5 py-2 rounded-full shadow-sm"
+              onPress={() => {
+                setSubjectToEdit(null);
+                setIsAddEditModalVisible(true);
+              }}
+              activeOpacity={0.8}
+            >
+              <Plus size={15} color={Colors.white} />
+              <Text className="font-manrope-bold text-xs text-white">Add Subject</Text>
+            </TouchableOpacity>
+          }
+        />
+
+        {/* Classes Selector Cards placed cleanly below Title & Subtitle */}
+        <ClassSelector
+          classes={classes}
+          selectedClassId={selectedClassId}
+          onSelectClass={setSelectedClassId}
+        />
+
         {/* Class Overview Banner */}
         {currentClass && (
-          <View className="bg-palePeach/70 rounded-2xl p-4 border border-primaryLight flex-row items-center justify-between">
-            <View>
-              <Text className="font-manrope-extrabold text-base text-textPrimary">
+          <HoverCard
+            className="bg-palePeach rounded-[20px] p-5 border border-primaryLight flex-row items-center justify-between shadow-sm"
+            lift={-3}
+          >
+            <View className="flex-1 min-w-0 mr-3">
+              <Text className="font-manrope-extrabold text-[17px] text-textPrimary tracking-tight">
                 {currentClass.title} Curriculum
               </Text>
-              <Text className="font-manrope-medium text-xs text-textSecondary mt-0.5">
+              <Text className="font-manrope-medium text-[13px] text-textSecondary mt-0.5 leading-[18px]">
                 {currentClass.subtitle}
               </Text>
             </View>
-            <View className="bg-white px-2.5 py-1 rounded-full border border-primaryLight">
+            <View className="bg-white px-3 py-1.5 rounded-full border border-primaryLight shadow-sm">
               <Text className="font-manrope-bold text-xs text-primary">
                 {allSubjects.length} Subjects
               </Text>
             </View>
-          </View>
+          </HoverCard>
         )}
 
         {/* Search & Category Filter */}
         <SearchFilterBar
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          placeholder="Search subjects by name or syllabus..."
+          placeholder={`Search ${currentClass?.title || 'class'} subjects...`}
           filters={filterOptions}
           activeFilter={selectedCategory}
           onFilterSelect={setSelectedCategory}
         />
 
         {/* Subjects List */}
-        <View className="gap-2.5">
-          <View className="flex-row items-center justify-between">
-            <Text className="font-manrope-extrabold text-sm text-textPrimary">
-              Prescribed Textbooks & Subjects ({filteredSubjects.length})
+        <View className="gap-1">
+          <View className="flex-row items-center justify-between pb-1">
+            <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight">
+              Subject Syllabi ({filteredSubjects.length})
             </Text>
+            <Text className="font-manrope-medium text-xs text-textMuted">Tap to view chapters</Text>
           </View>
 
           {filteredSubjects.length === 0 ? (
             <EmptyState
-              icon={<BookOpen size={28} color={Colors.primary} />}
-              title="No Subjects Found"
-              message="No subjects match your search or filter. You can add a new subject for this class."
+              title="No subjects found"
+              message={`No subjects found matching "${searchQuery}". Add a new subject or change filter.`}
+              icon={<BookOpen size={36} color={Colors.primary} />}
               actionLabel="Add Subject"
               onActionPress={() => {
                 setSubjectToEdit(null);
@@ -194,22 +208,22 @@ export const ClassesScreen: React.FC = () => {
               }}
             />
           ) : (
-            filteredSubjects.map((subj) => (
+            filteredSubjects.map((subject) => (
               <SubjectCard
-                key={subj.id}
-                subject={subj}
+                key={subject.id}
+                subject={subject}
                 onPress={() =>
                   navigation.navigate('Chapters', {
                     classId: selectedClassId,
-                    subjectId: subj.id,
+                    subjectId: subject.id,
                   })
                 }
                 onEdit={() => {
-                  setSubjectToEdit(subj);
+                  setSubjectToEdit(subject);
                   setIsAddEditModalVisible(true);
                 }}
-                onToggleArchive={() => handleToggleArchive(subj.id)}
-                onDelete={() => setSubjectToDelete(subj)}
+                onToggleArchive={() => handleToggleArchive(subject.id)}
+                onDelete={() => setSubjectToDelete(subject)}
               />
             ))
           )}
@@ -227,11 +241,11 @@ export const ClassesScreen: React.FC = () => {
         }}
       />
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Subject Confirmation */}
       <ModalConfirm
         visible={Boolean(subjectToDelete)}
-        title="Delete Subject"
-        message={`Are you sure you want to delete '${subjectToDelete?.name}'? This action cannot be undone.`}
+        title="Delete Subject?"
+        message={`Are you sure you want to delete "${subjectToDelete?.name}"? Subjects with chapters or lecture materials cannot be deleted.`}
         confirmLabel="Delete"
         variant="danger"
         onConfirm={handleDeleteSubject}

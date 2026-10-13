@@ -9,6 +9,8 @@ import { AddEditChapterModal } from '../components/curriculum/AddEditChapterModa
 import { AddEditSectionModal } from '../components/curriculum/AddEditSectionModal';
 import { ModalConfirm } from '../components/common/ModalConfirm';
 import { EmptyState } from '../components/common/EmptyState';
+import { HoverCard } from '../components/common/HoverCard';
+import { BottomNav } from '../components/common/BottomNav';
 import {
   getClassById,
   addChapterToSubject,
@@ -127,16 +129,17 @@ export const ChaptersScreen: React.FC = () => {
         subtitle={`${currentClass?.title || ''} · ${chapters.length} Chapters`}
         showBack
         onBackPress={() => navigation.goBack()}
+        onProfilePress={() => navigation.navigate('Profile')}
         rightAction={
           <TouchableOpacity
-            className="flex-row items-center gap-1.5 bg-primary px-3 py-1.5 rounded-full shadow-sm"
+            className="flex-row items-center gap-1.5 bg-primary px-3.5 py-2 rounded-full shadow-sm"
             onPress={() => {
               setChapterToEdit(null);
               setIsChapterModalVisible(true);
             }}
             activeOpacity={0.8}
           >
-            <Plus size={14} color={Colors.white} />
+            <Plus size={15} color={Colors.white} />
             <Text className="font-manrope-bold text-xs text-white">Add Chapter</Text>
           </TouchableOpacity>
         }
@@ -144,7 +147,12 @@ export const ChaptersScreen: React.FC = () => {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 40 }}
+        contentContainerStyle={{
+          paddingHorizontal: 22,
+          paddingTop: 18,
+          paddingBottom: 48,
+          gap: 18,
+        }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
@@ -152,23 +160,23 @@ export const ChaptersScreen: React.FC = () => {
       >
         {/* Subject Overview Card */}
         {currentSubject && (
-          <View className="bg-palePeach/60 rounded-2xl p-4 border border-primaryLight gap-2">
+          <HoverCard className="bg-palePeach rounded-[20px] p-5 border border-primaryLight gap-2 shadow-sm" lift={-3}>
             <View className="flex-row items-center justify-between">
-              <Text className="font-manrope-extrabold text-base text-textPrimary">
+              <Text className="font-manrope-extrabold text-[17px] text-textPrimary tracking-tight">
                 {currentSubject.name} Syllabus
               </Text>
-              <View className="bg-white px-2.5 py-0.5 rounded-full border border-primaryLight">
+              <View className="bg-white px-3 py-1 rounded-full border border-primaryLight shadow-sm">
                 <Text className="font-manrope-bold text-xs text-primary">
                   {chapters.length} Chapters
                 </Text>
               </View>
             </View>
             {currentSubject.description ? (
-              <Text className="font-manrope-medium text-xs text-textSecondary leading-4">
+              <Text className="font-manrope-medium text-[13px] text-textSecondary leading-[18px]">
                 {currentSubject.description}
               </Text>
             ) : null}
-          </View>
+          </HoverCard>
         )}
 
         {/* Chapters Header */}
@@ -184,44 +192,44 @@ export const ChaptersScreen: React.FC = () => {
         {/* Chapters List */}
         {chapters.length === 0 ? (
           <EmptyState
-            icon={<Layers size={28} color={Colors.primary} />}
-            title="No Chapters Added Yet"
-            message="Add the first chapter for this subject to start structuring syllabus topics."
-            actionLabel="Add Chapter"
+            title="No chapters created yet"
+            message={`Start building the ${currentSubject?.name || 'subject'} index by adding Chapter 1.`}
+            icon={<Layers size={36} color={Colors.primary} />}
+            actionLabel="Add First Chapter"
             onActionPress={() => {
               setChapterToEdit(null);
               setIsChapterModalVisible(true);
             }}
           />
         ) : (
-          chapters.map((chap) => (
+          chapters.map((ch) => (
             <ChapterListItem
-              key={chap.id}
-              chapter={chap}
+              key={ch.id}
+              chapter={ch}
               onEdit={() => {
-                setChapterToEdit(chap);
+                setChapterToEdit(ch);
                 setIsChapterModalVisible(true);
               }}
-              onDelete={() => setChapterToDelete(chap)}
+              onDelete={() => setChapterToDelete(ch)}
               onAddSection={() => {
-                setActiveChapterForSection(chap);
+                setActiveChapterForSection(ch);
                 setSectionToEdit(null);
                 setIsSectionModalVisible(true);
               }}
               onEditSection={(sec) => {
-                setActiveChapterForSection(chap);
+                setActiveChapterForSection(ch);
                 setSectionToEdit(sec);
                 setIsSectionModalVisible(true);
               }}
-              onDeleteSection={(secId) => {
-                setSectionToDelete({ chapterId: chap.id, sectionId: secId });
-              }}
+              onDeleteSection={(secId) =>
+                setSectionToDelete({ chapterId: ch.id, sectionId: secId })
+              }
             />
           ))
         )}
       </ScrollView>
 
-      {/* Chapter Modal */}
+      {/* Add / Edit Chapter Modal */}
       <AddEditChapterModal
         visible={isChapterModalVisible}
         chapterToEdit={chapterToEdit}
@@ -233,7 +241,7 @@ export const ChaptersScreen: React.FC = () => {
         }}
       />
 
-      {/* Section Modal */}
+      {/* Add / Edit Section Modal */}
       <AddEditSectionModal
         visible={isSectionModalVisible}
         sectionToEdit={sectionToEdit}
@@ -241,32 +249,34 @@ export const ChaptersScreen: React.FC = () => {
         onSave={handleSaveSection}
         onClose={() => {
           setIsSectionModalVisible(false);
-          setActiveChapterForSection(null);
           setSectionToEdit(null);
+          setActiveChapterForSection(null);
         }}
       />
 
-      {/* Delete Chapter Confirm */}
+      {/* Delete Chapter Confirmation */}
       <ModalConfirm
         visible={Boolean(chapterToDelete)}
-        title="Delete Chapter"
-        message={`Are you sure you want to delete '${chapterToDelete?.title}'? All nested sections will also be removed.`}
+        title="Delete Chapter?"
+        message={`Are you sure you want to delete "${chapterToDelete?.title}"? Chapters containing learning materials or quiz questions cannot be deleted.`}
         confirmLabel="Delete"
         variant="danger"
         onConfirm={handleDeleteChapter}
         onCancel={() => setChapterToDelete(null)}
       />
 
-      {/* Delete Section Confirm */}
+      {/* Delete Section Confirmation */}
       <ModalConfirm
         visible={Boolean(sectionToDelete)}
-        title="Delete Section"
-        message="Are you sure you want to delete this section?"
+        title="Delete Section?"
+        message="Are you sure you want to delete this section topic?"
         confirmLabel="Delete"
         variant="danger"
         onConfirm={handleDeleteSection}
         onCancel={() => setSectionToDelete(null)}
       />
+      {/* Bottom Navbar matching student-mobile */}
+      <BottomNav activeTab="Curriculum" navigation={navigation} />
     </View>
   );
 };

@@ -5,6 +5,7 @@ import { TypeBadge } from '../common/TypeBadge';
 import { StatusBadge } from '../common/StatusBadge';
 import { Eye, Edit2, Trash2, Globe, File } from 'lucide-react-native';
 import Colors from '../../constants/colors';
+import { HoverCard } from '../common/HoverCard';
 
 interface MaterialCardProps {
   material: LectureMaterial;
@@ -28,7 +29,7 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({
   };
 
   return (
-    <View className="bg-white rounded-2xl p-4 border border-border shadow-sm gap-3 my-1.5">
+    <HoverCard className="bg-white rounded-[20px] p-5 border border-border shadow-sm gap-3.5 mb-3.5" lift={-3}>
       {/* Top Header: Type and Status */}
       <View className="flex-row items-center justify-between">
         <TypeBadge type={material.materialType} size="sm" />
@@ -37,11 +38,11 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({
 
       {/* Main Content Area */}
       <TouchableOpacity onPress={onPress} activeOpacity={0.8} className="gap-1.5">
-        <Text className="font-manrope-extrabold text-base text-textPrimary tracking-tight" numberOfLines={2}>
+        <Text className="font-manrope-extrabold text-[17px] text-textPrimary tracking-tight" numberOfLines={2}>
           {material.title}
         </Text>
         {material.description ? (
-          <Text className="font-manrope-medium text-xs text-textSecondary leading-4" numberOfLines={2}>
+          <Text className="font-manrope-medium text-[13px] text-textSecondary leading-[18px]" numberOfLines={2}>
             {material.description}
           </Text>
         ) : null}
@@ -49,17 +50,17 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({
 
       {/* Breadcrumb Tags (Class, Subject, Chapter) */}
       <View className="flex-row flex-wrap items-center gap-1.5">
-        <View className="bg-palePeach px-2 py-0.5 rounded-md border border-primaryLight">
+        <View className="bg-palePeach px-2.5 py-1 rounded-md border border-primaryLight">
           <Text className="font-manrope-bold text-[10px] text-primaryDark">
             Class {material.grade}
           </Text>
         </View>
-        <View className="bg-softWarm px-2 py-0.5 rounded-md border border-border">
+        <View className="bg-softWarm px-2.5 py-1 rounded-md border border-border">
           <Text className="font-manrope-semibold text-[10px] text-textSecondary" numberOfLines={1}>
             {material.subjectName}
           </Text>
         </View>
-        <View className="bg-softWarm px-2 py-0.5 rounded-md border border-border flex-1 min-w-0">
+        <View className="bg-softWarm px-2.5 py-1 rounded-md border border-border flex-1 min-w-0">
           <Text className="font-manrope-medium text-[10px] text-textMuted" numberOfLines={1}>
             {material.chapterTitle}
           </Text>
@@ -68,14 +69,14 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({
 
       {/* File or URL meta info */}
       {(material.fileName || material.videoUrl || material.fileSizeBytes) && (
-        <View className="flex-row items-center justify-between bg-softWarm/80 px-2.5 py-1.5 rounded-xl border border-border">
-          <View className="flex-row items-center gap-1.5 flex-1 min-w-0 mr-2">
+        <View className="flex-row items-center justify-between bg-softWarm/80 px-3 py-2 rounded-[14px] border border-border">
+          <View className="flex-row items-center gap-2 flex-1 min-w-0 mr-2">
             {material.videoUrl ? (
-              <Globe size={13} color={Colors.primary} />
+              <Globe size={14} color={Colors.primary} />
             ) : (
-              <File size={13} color={Colors.primary} />
+              <File size={14} color={Colors.primary} />
             )}
-            <Text className="font-manrope-medium text-[11px] text-textSecondary flex-1" numberOfLines={1}>
+            <Text className="font-manrope-medium text-xs text-textSecondary flex-1" numberOfLines={1}>
               {material.fileName || material.videoUrl}
             </Text>
           </View>
@@ -88,9 +89,9 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({
       )}
 
       {/* Bottom Actions Row */}
-      <View className="flex-row items-center justify-between pt-2 border-t border-border">
+      <View className="flex-row items-center justify-between pt-3 border-t border-border">
         <TouchableOpacity
-          className="flex-row items-center gap-1.5 bg-palePeach px-3 py-1.5 rounded-xl border border-primaryLight"
+          className="flex-row items-center gap-1.5 bg-palePeach px-3.5 py-1.5 rounded-full border border-primaryLight"
           onPress={onPress}
           activeOpacity={0.7}
         >
@@ -98,19 +99,28 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({
           <Text className="font-manrope-bold text-xs text-primary">Preview</Text>
         </TouchableOpacity>
 
-        <View className="flex-row items-center gap-1.5">
+        <View className="flex-row items-center gap-2">
+          {/* Status Quick Toggle */}
           <TouchableOpacity
-            className="px-2.5 py-1.5 rounded-xl bg-softWarm border border-border"
+            className={`px-3 py-1.5 rounded-full border ${
+              material.status === 'published'
+                ? 'bg-softWarm border-border'
+                : 'bg-successBg border-success/30'
+            }`}
             onPress={onToggleStatus}
             activeOpacity={0.7}
           >
-            <Text className="font-manrope-bold text-[11px] text-textSecondary">
+            <Text
+              className={`font-manrope-bold text-xs ${
+                material.status === 'published' ? 'text-textSecondary' : 'text-success'
+              }`}
+            >
               {material.status === 'published' ? 'Unpublish' : 'Publish'}
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="w-8 h-8 rounded-xl bg-softWarm items-center justify-center border border-border"
+            className="w-8 h-8 rounded-lg bg-softWarm items-center justify-center border border-border"
             onPress={onEdit}
             activeOpacity={0.7}
             accessibilityLabel="Edit material"
@@ -119,7 +129,7 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="w-8 h-8 rounded-xl bg-softWarm items-center justify-center border border-border"
+            className="w-8 h-8 rounded-lg bg-softWarm items-center justify-center border border-border"
             onPress={onDelete}
             activeOpacity={0.7}
             accessibilityLabel="Delete material"
@@ -128,6 +138,6 @@ export const MaterialCard: React.FC<MaterialCardProps> = ({
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </HoverCard>
   );
 };

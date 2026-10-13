@@ -12,6 +12,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { ArrowLeft, Check, Save, FileText, Video, Globe, BookOpen } from 'lucide-react-native';
 import Colors from '../constants/colors';
 import { HeaderBar } from '../components/common/HeaderBar';
+import { BottomNav } from '../components/common/BottomNav';
 import { FileUploadBox } from '../components/materials/FileUploadBox';
 import { getClasses } from '../services/curriculumService';
 import {
@@ -21,10 +22,12 @@ import {
 } from '../services/materialsService';
 import { SchoolClass, Subject, Chapter } from '../types/curriculum';
 import { MaterialType, PublicationStatus } from '../types/materials';
+import { useAdminAuth } from '../hooks/useAdminAuth';
 
 export const AddEditMaterialScreen: React.FC = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
+  const { user } = useAdminAuth();
   const { materialId, defaultClassId, defaultSubjectId, defaultChapterId } = route.params || {};
 
   const [loading, setLoading] = useState(false);
@@ -159,6 +162,7 @@ export const AddEditMaterialScreen: React.FC = () => {
         sectionId: selectedSectionId || undefined,
         sectionTitle: availableSections.find((s) => s.id === selectedSectionId)?.title,
         language,
+        authorName: user?.fullName || 'Admin Name',
         displayOrder: 1,
         status: targetStatus,
         fileName: selectedFile?.name,
@@ -197,11 +201,12 @@ export const AddEditMaterialScreen: React.FC = () => {
         subtitle="Lecture notes, PDFs & media"
         showBack
         onBackPress={() => navigation.goBack()}
+        onProfilePress={() => navigation.navigate('Profile')}
       />
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 50 }}
+        contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 18, paddingBottom: 48, gap: 18 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Title */}
@@ -422,6 +427,7 @@ export const AddEditMaterialScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <BottomNav activeTab="Materials" navigation={navigation} />
     </View>
   );
 };

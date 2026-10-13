@@ -6,19 +6,21 @@ interface ClassSelectorProps {
   classes: SchoolClass[];
   selectedClassId: string;
   onSelectClass: (classId: string) => void;
+  className?: string;
 }
 
 export const ClassSelector: React.FC<ClassSelectorProps> = ({
   classes,
   selectedClassId,
   onSelectClass,
+  className = '',
 }) => {
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ gap: 10, paddingHorizontal: 20 }}
-      className="py-1"
+      contentContainerStyle={{ gap: 10, paddingVertical: 2 }}
+      className={className}
     >
       {classes.map((c) => {
         const isSelected = selectedClassId === c.id;
@@ -40,22 +42,25 @@ export const ClassSelector: React.FC<ClassSelectorProps> = ({
             >
               {c.title}
             </Text>
-            <View
-              className={`px-2 py-0.5 rounded-full ${
-                isSelected ? 'bg-primary' : 'bg-softWarm'
-              }`}
-            >
-              <Text
-                className={`font-manrope-bold text-[10px] ${
-                  isSelected ? 'text-white' : 'text-textSecondary'
+            {c.badge ? (
+              <View
+                className={`px-2 py-0.5 rounded-full ${
+                  isSelected ? 'bg-primary' : 'bg-softWarm'
                 }`}
               >
-                {c.badge}
-              </Text>
-            </View>
+                <Text
+                  className={`font-manrope-bold text-[10px] ${
+                    isSelected ? 'text-white' : 'text-textSecondary'
+                  }`}
+                >
+                  {c.badge}
+                </Text>
+              </View>
+            ) : null}
           </TouchableOpacity>
         );
       })}
     </ScrollView>
   );
 };
+
