@@ -41,3 +41,12 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# env
+.env
+.env.*
+!.env.example
+
+# turbo
+.turbo/
+**/.turbo/

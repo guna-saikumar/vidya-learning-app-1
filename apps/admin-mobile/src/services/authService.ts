@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { ApiClient } from '@vidya/api-client';
+import { AdminAuthApi, ApiClient } from '@vidya/api-client';
 import { AdminUser } from '../types/auth';
 
 export const AUTH_STORAGE_KEY = '@vidya_admin_profile_data';
@@ -19,7 +19,7 @@ export const DEFAULT_ADMIN: AdminUser = {
 export const DEMO_ADMIN = DEFAULT_ADMIN;
 
 /**
- * Resolves the backend Fastify API base URL dynamically based on environment
+ * Resolves the Nest/Fastify API base URL.
  */
 export const getApiBaseUrl = (): string => {
   if (process.env.EXPO_PUBLIC_API_URL) {
@@ -32,6 +32,7 @@ export const getApiBaseUrl = (): string => {
 };
 
 let clientInstance: ApiClient | null = null;
+let adminAuthInstance: AdminAuthApi | null = null;
 
 export const getApiClient = (): ApiClient => {
   if (!clientInstance) {
@@ -42,9 +43,13 @@ export const getApiClient = (): ApiClient => {
   return clientInstance;
 };
 
-/**
- * Returns stored JWT token
- */
+const getAdminAuth = (): AdminAuthApi => {
+  if (!adminAuthInstance) {
+    adminAuthInstance = new AdminAuthApi(getApiClient());
+  }
+  return adminAuthInstance;
+};
+
 export const getStoredToken = async (): Promise<string | null> => {
   try {
     return await AsyncStorage.getItem(AUTH_TOKEN_KEY);
@@ -54,9 +59,6 @@ export const getStoredToken = async (): Promise<string | null> => {
   }
 };
 
-/**
- * Returns the current active administrator profile from storage
- */
 export const getStoredSession = async (): Promise<AdminUser | null> => {
   try {
     const raw = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
@@ -75,9 +77,6 @@ export const getStoredSession = async (): Promise<AdminUser | null> => {
   return null;
 };
 
-/**
- * Saves updated administrator profile and token to storage
- */
 export const saveStoredAuth = async (token: string, user: AdminUser): Promise<void> => {
   try {
     await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
@@ -88,9 +87,6 @@ export const saveStoredAuth = async (token: string, user: AdminUser): Promise<vo
   }
 };
 
-/**
- * Saves profile updates to storage
- */
 export const saveStoredSession = async (user: AdminUser): Promise<void> => {
   try {
     await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
@@ -99,9 +95,6 @@ export const saveStoredSession = async (user: AdminUser): Promise<void> => {
   }
 };
 
-/**
- * Clears stored auth tokens and session
- */
 export const logoutAdmin = async (): Promise<void> => {
   try {
     await AsyncStorage.multiRemove([AUTH_TOKEN_KEY, AUTH_STORAGE_KEY]);
@@ -111,27 +104,35 @@ export const logoutAdmin = async (): Promise<void> => {
   }
 };
 
-/**
- * Authenticates admin via Fastify API with local demo fallback
- */
-export const loginAdmin = async (email: string, password: string): Promise<{ token: string; user: AdminUser }> => {
-  const client = getApiClient();
+export const loginAdmin = async (
+  email: string,
+  password: string
+): Promise<{ token: string; user: AdminUser }> => {
+  const adminAuth = getAdminAuth();
   try {
-    const res = await client.adminLogin({ email, password });
+    const res = await adminAuth.login({ email, password });
     const user: AdminUser = {
       id: res.user.id,
       email: res.user.email,
       fullName: res.user.name,
       role: 'Admin',
       department: res.user.department || 'Academic Director · AP SCERT Division',
-      lastLogin: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      lastLogin: new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
     };
     await saveStoredAuth(res.accessToken, user);
     return { token: res.accessToken, user };
-  } catch (err: any) {
-    // If backend is unreachable during offline/local development, allow verified demo credentials
-    const isNetworkError = err?.message?.includes('fetch') || err?.message?.includes('Network');
-    if (isNetworkError && (email.toLowerCase() === 'admin@vidya.edu.in' || email.toLowerCase() === 'admin@example.com')) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : '';
+    const isNetworkError = message.includes('fetch') || message.includes('Network');
+    if (
+      isNetworkError &&
+      (email.toLowerCase() === 'admin@vidya.edu.in' ||
+        email.toLowerCase() === 'admin@example.com')
+    ) {
       const demoToken = 'demo-admin-jwt-token-active';
       const user = { ...DEFAULT_ADMIN, email };
       await saveStoredAuth(demoToken, user);
@@ -141,43 +142,32 @@ export const loginAdmin = async (email: string, password: string): Promise<{ tok
   }
 };
 
-/**
- * Registers a new admin account via Fastify API
- */
 export const registerAdmin = async (data: {
   name: string;
   email: string;
   password: string;
   department?: string;
 }): Promise<{ message: string }> => {
-  const client = getApiClient();
-  return client.adminRegister(data);
+  return getAdminAuth().register(data);
 };
 
-/**
- * Verifies admin email with 6-digit OTP
- */
-export const verifyAdminEmail = async (email: string, otp: string): Promise<{ message: string }> => {
-  const client = getApiClient();
-  return client.adminVerifyEmail({ email, otp });
+export const verifyAdminEmail = async (
+  email: string,
+  otp: string
+): Promise<{ message: string }> => {
+  return getAdminAuth().verifyEmail({ email, otp });
 };
 
-/**
- * Requests password reset OTP
- */
-export const forgotAdminPassword = async (email: string): Promise<{ message: string }> => {
-  const client = getApiClient();
-  return client.adminForgotPassword({ email });
+export const forgotAdminPassword = async (
+  email: string
+): Promise<{ message: string }> => {
+  return getAdminAuth().forgotPassword({ email });
 };
 
-/**
- * Resets admin password with OTP
- */
 export const resetAdminPassword = async (data: {
   email: string;
   otp: string;
   newPassword: string;
 }): Promise<{ message: string }> => {
-  const client = getApiClient();
-  return client.adminResetPassword(data);
+  return getAdminAuth().resetPassword(data);
 };
