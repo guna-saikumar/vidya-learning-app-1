@@ -13,6 +13,7 @@ model User {
   name              String
   role              UserRole
   passwordHash      String
+  department        String?
   emailVerifiedAt   DateTime?
   emailOtpHash      String?
   emailOtpExpiresAt DateTime?
